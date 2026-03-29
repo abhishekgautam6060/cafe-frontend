@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:8080", // your backend
+  baseURL: "https://cafe-backend-production-27fe.up.railway.app", // your backend
 });
 
 // Add token automatically
