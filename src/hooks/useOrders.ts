@@ -79,7 +79,7 @@ export function useOrders() {
 
   // ✅ Fetch Orders
   const fetchOrders = async () => {
-    const res = await API.get("/orders");
+    const res = await API.get("/orders/today");
     setTodaysOrders(res.data);
 
     const total = res.data
@@ -88,6 +88,17 @@ export function useOrders() {
 
     setTodaysRevenue(total);
   };
+  //  // ✅ Fetch Orders
+  //  const fetchOrders = async () => {
+  //   const res = await API.get("/orders");
+  //   setTodaysOrders(res.data);
+
+  //   const total = res.data
+  //     .filter((o) => o.status === "PAID")
+  //     .reduce((sum: number, o: any) => sum + o.totalAmount, 0);
+
+  //   setTodaysRevenue(total);
+  // };
 
   // ✅ Total calculator
   const getTotal = (items: any[]) => {
