@@ -77,19 +77,19 @@ export function useOrders() {
     }
   };
 
-//   // ✅ Fetch Orders
-//   const fetchOrders = async () => {
-//     const res = await API.get("/orders/today");
-//     setTodaysOrders(res.data);
-//
-//     const total = res.data
-//       .filter((o) => o.status === "PAID")
-//       .reduce((sum: number, o: any) => sum + o.totalAmount, 0);
-//
-//     setTodaysRevenue(total);
-  };
+  //   // ✅ Fetch Orders
+  //   const fetchOrders = async () => {
+  //     const res = await API.get("/orders/today");
+  //     setTodaysOrders(res.data);
+  //
+  //     const total = res.data
+  //       .filter((o) => o.status === "PAID")
+  //       .reduce((sum: number, o: any) => sum + o.totalAmount, 0);
+  //
+  //     setTodaysRevenue(total);
+  // };
   //  // ✅ Fetch Orders
-   const fetchOrders = async () => {
+  const fetchOrders = async () => {
     const res = await API.get("/orders");
     setTodaysOrders(res.data);
 
