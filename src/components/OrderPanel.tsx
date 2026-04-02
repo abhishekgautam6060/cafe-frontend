@@ -191,9 +191,14 @@ export default function OrderPanel({
 
                           <div className="flex gap-1">
                             <button
-                              onClick={() =>
-                                onRemoveItem(order.id, item.menuItem?.id)
-                              }
+                              onClick={() => {
+                                if (item.menuItem?.id) {
+                                  onRemoveItem(
+                                    String(order.id),
+                                    String(item.menuItem.id)
+                                  );
+                                }
+                              }}
                               className="p-1.5 text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
                             >
                               <Minus className="w-4 h-4" />
