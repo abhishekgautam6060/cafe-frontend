@@ -140,7 +140,6 @@ export function useOrders() {
             return item;
           })
           .filter((item: any) => item.quantity > 0); // remove if 0
-
         return {
           ...order,
           items: updatedItems,
