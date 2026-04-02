@@ -77,9 +77,20 @@ export function useOrders() {
     }
   };
 
-  // ✅ Fetch Orders
-  const fetchOrders = async () => {
-    const res = await API.get("/orders/today");
+//   // ✅ Fetch Orders
+//   const fetchOrders = async () => {
+//     const res = await API.get("/orders/today");
+//     setTodaysOrders(res.data);
+//
+//     const total = res.data
+//       .filter((o) => o.status === "PAID")
+//       .reduce((sum: number, o: any) => sum + o.totalAmount, 0);
+//
+//     setTodaysRevenue(total);
+  };
+  //  // ✅ Fetch Orders
+   const fetchOrders = async () => {
+    const res = await API.get("/orders");
     setTodaysOrders(res.data);
 
     const total = res.data
@@ -88,17 +99,6 @@ export function useOrders() {
 
     setTodaysRevenue(total);
   };
-  //  // ✅ Fetch Orders
-  //  const fetchOrders = async () => {
-  //   const res = await API.get("/orders");
-  //   setTodaysOrders(res.data);
-
-  //   const total = res.data
-  //     .filter((o) => o.status === "PAID")
-  //     .reduce((sum: number, o: any) => sum + o.totalAmount, 0);
-
-  //   setTodaysRevenue(total);
-  // };
 
   // ✅ Total calculator
   const getTotal = (items: any[]) => {
@@ -122,6 +122,38 @@ export function useOrders() {
   useEffect(() => {
     fetchOrders();
   }, []);
+
+  const removeItem = async (orderId: number, menuItemId: number) => {
+    // 🔥 1. Update UI instantly (like addItem)
+    setTodaysOrders((prev) =>
+      prev.map((order) => {
+        if (order.id !== orderId) return order;
+
+        const updatedItems = (order.items || [])
+          .map((item: any) => {
+            if (item.menuItem?.id === menuItemId) {
+              return {
+                ...item,
+                quantity: item.quantity - 1,
+              };
+            }
+            return item;
+          })
+          .filter((item: any) => item.quantity > 0); // remove if 0
+
+        return {
+          ...order,
+          items: updatedItems,
+        };
+      })
+    );
+
+    try {
+      fetchOrders();
+    } catch (err) {
+      console.error("Error removing item", err);
+    }
+  };
 
   useEffect(() => {
     console.log("orders updated:", todaysOrders);

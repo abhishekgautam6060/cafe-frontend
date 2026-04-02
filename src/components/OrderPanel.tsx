@@ -193,10 +193,7 @@ export default function OrderPanel({
                             <button
                               onClick={() => {
                                 if (item.menuItem?.id) {
-                                  onRemoveItem(
-                                    String(order.id),
-                                    String(item.menuItem.id)
-                                  );
+                                  onRemoveItem(order.id, item.menuItem.id);
                                 }
                               }}
                               className="p-1.5 text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
