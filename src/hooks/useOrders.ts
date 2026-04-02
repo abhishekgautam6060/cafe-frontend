@@ -118,11 +118,6 @@ export function useOrders() {
     await fetchOrders();
   };
 
-  const removeItem = () => {};
-  useEffect(() => {
-    fetchOrders();
-  }, []);
-
   const removeItem = async (orderId: number, menuItemId: number) => {
     // 🔥 1. Update UI instantly (like addItem)
     setTodaysOrders((prev) =>
