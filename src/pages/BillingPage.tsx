@@ -130,7 +130,7 @@ export default function BillingPage() {
         .reduce((s, e) => s + Number(e.amount), 0);
       data.push({ month, revenue: rev, expenses: exp, profit: rev - exp });
     }
-    return data;
+    return data;  
   }, [orders, expenses]);
 
   const handleAddExpense = async () => {
