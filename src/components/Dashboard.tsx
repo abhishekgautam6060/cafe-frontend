@@ -26,7 +26,7 @@ export default function Dashboard({
   const stats = [
     {
       key: "revenue",
-      label: "Today's Revenue",
+      label: "Monthly Revenue",
       value: `₹${todaysRevenue.toLocaleString()}`,
       icon: IndianRupee,
       accent: "from-success/20 to-success/5 border-success/20",
