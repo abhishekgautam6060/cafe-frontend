@@ -77,18 +77,6 @@ export function useOrders() {
     }
   };
 
-  //  // ✅ Fetch Orders
-  const fetchOrders = async () => {
-    const res = await API.get("/orders");
-    setTodaysOrders(res.data);
-
-    const total = res.data
-      .filter((o) => o.status === "PAID")
-      .reduce((sum: number, o: any) => sum + o.totalAmount, 0);
-
-    setTodaysRevenue(total);
-  };
-
   // ✅ Total calculator
   const getTotal = (items: any[]) => {
     return items?.reduce((sum, item) => {
@@ -107,11 +95,57 @@ export function useOrders() {
     await fetchOrders();
   };
 
-  const removeItem = () => {};
+  const removeItem = async (orderId: number, menuItem: any) => {
+    console.log("removing item executing..");
+    // 🔥 1. Update UI instantly
+    setTodaysOrders((prev) =>
+      prev.map((order) => {
+        if (order.id !== orderId) return order;
+
+        const updatedItems = (order.items || [])
+          .map((i: any) => {
+            if (i.menuItem?.id === menuItem.id) {
+              return { ...i, quantity: i.quantity - 1 }; // ✅ FIX
+            }
+            return i;
+          })
+          .filter((i: any) => i.quantity > 0); // ✅ remove if 0
+
+        return {
+          ...order,
+          items: updatedItems,
+        };
+      })
+    );
+
+    // 🔥 2. Call backend
+    try {
+      await API.post(`/orders/${orderId}/remove/items`, {
+        itemName: menuItem.name,
+        price: menuItem.price,
+        quantity: 1,
+      });
+    } catch (err) {
+      console.error("Error removing item", err);
+    }
+  };
+
   useEffect(() => {
     fetchOrders();
   }, []);
 
+  //  // ✅ Fetch Orders
+  const fetchOrders = async () => {
+    const res = await API.get("/orders");
+    console.log("API DATA:", res.data); // 👈 CHECK THIS
+    setTodaysOrders(res.data);
+
+    const total = res.data
+      .filter((o) => o.status === "PAID")
+      .reduce((sum: number, o: any) => sum + o.totalAmount, 0);
+
+    setTodaysRevenue(total);
+  };
   useEffect(() => {
     console.log("orders updated:", todaysOrders);
   }, [todaysOrders]);
