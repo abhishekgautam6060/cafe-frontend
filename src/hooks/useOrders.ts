@@ -44,7 +44,7 @@ export function useOrders() {
 
         if (existingItem) {
           updatedItems = order.items.map((i: any) =>
-            i.menuItem.id === menuItem.id
+            (i.menuItem?.id || i.id) === menuItem.id
               ? { ...i, quantity: i.quantity + 1 }
               : i
           );
@@ -92,6 +92,11 @@ export function useOrders() {
 
   const collectPayment = async (orderId: string, method: string) => {
     await API.put(`/orders/${orderId}/pay?method=${method}`);
+    await fetchOrders();
+  };
+
+  const addMoreItem = async (orderId: number) => {
+    await API.put(`/orders/${orderId}/add-items`);
     await fetchOrders();
   };
 
@@ -157,6 +162,7 @@ export function useOrders() {
     createOrder,
     removeItem, // ✅ add this
     generateBill, // ✅ add this
+    addMoreItem,
     collectPayment,
     addItem,
     getTotal,
