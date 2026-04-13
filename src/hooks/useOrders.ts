@@ -107,10 +107,39 @@ export function useOrders() {
     await fetchOrders();
   };
 
-  const removeItem = () => {};
-  useEffect(() => {
-    fetchOrders();
-  }, []);
+  const removeItem = async (orderId: number, menuItem: any) => {
+    // 🔥 1. Update UI instantly
+    setTodaysOrders((prev) =>
+      prev.map((order) => {
+        if (order.id !== orderId) return order;
+
+        const updatedItems = (order.items || [])
+          .map((i: any) => {
+            if (i.menuItem?.id === menuItem.id) {
+              return { ...i, quantity: i.quantity - 1 }; // ✅ FIX
+            }
+            return i;
+          })
+          .filter((i: any) => i.quantity > 0); // ✅ remove if 0
+
+        return {
+          ...order,
+          items: updatedItems,
+        };
+      })
+    );
+
+    // 🔥 2. Call backend
+    try {
+      await API.post(`/orders/${orderId}/remove/items`, {
+        itemName: menuItem.name,
+        price: menuItem.price,
+        quantity: 1,
+      });
+    } catch (err) {
+      console.error("Error removing item", err);
+    }
+  };
 
   useEffect(() => {
     console.log("orders updated:", todaysOrders);
