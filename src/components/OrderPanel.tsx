@@ -17,6 +17,7 @@ interface OrderPanelProps {
   tableNo: number;
   order: any;
   onClose: () => void;
+  onAddMoreItem: (orderId: number) => void;
   onCreateOrder: (tableNo: number) => void;
   onAddItem: (orderId: number, item: MenuItem) => void;
   onRemoveItem: (orderId: number, item: MenuItem) => void;
@@ -31,6 +32,7 @@ export default function OrderPanel({
   tableNo,
   order,
   onClose,
+  onAddMoreItem,
   onCreateOrder,
   onAddItem,
   onRemoveItem,
@@ -262,10 +264,7 @@ export default function OrderPanel({
                 ))}
               </div>
               <Button
-                onClick={() => {
-                  order.status = "ACTIVE";
-                  setForceUpdate((prev) => !prev); // ✅ force re-render
-                }}
+                onClick={() => onAddMoreItem(order.id)}
                 variant="outline"
                 className="w-full mb-4 rounded-xl"
               >
