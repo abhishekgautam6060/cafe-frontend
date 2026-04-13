@@ -19,7 +19,7 @@ interface OrderPanelProps {
   onClose: () => void;
   onCreateOrder: (tableNo: number) => void;
   onAddItem: (orderId: number, item: MenuItem) => void;
-  onRemoveItem: (orderId: number, item: MenuItem) => void;
+  onRemoveItem: (orderId: string, menuItemId: string) => void;
   onGenerateBill: (orderId: string) => void;
   onCollectPayment: (orderId: string, method: "cash" | "card" | "upi") => void;
   getTotal: (items: OrderItem[]) => number;
@@ -167,57 +167,50 @@ export default function OrderPanel({
                   </h3>
 
                   <div className="space-y-2">
-                    {items.map((item: any) => {
-                      const menuItemData = item.menuItem || {
-                        id: item.id,
-                        name: item.itemName,
-                        price: item.price,
-                      };
+                    {items.map((item: any) => (
+                      <div
+                        key={item.menuItem?.id || item.id}
+                        className="flex items-center justify-between bg-card border rounded-xl p-4 hover:shadow-sm transition-shadow"
+                      >
+                        <div>
+                          <p className="font-medium text-sm">
+                            {item.menuItem?.name || item.itemName}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            ₹{item.menuItem?.price || item.price} ×{" "}
+                            {item.quantity}
+                          </p>
+                        </div>
 
-                      const itemName = item.menuItem?.name || item.itemName;
-                      const itemPrice = item.menuItem?.price || item.price;
+                        <div className="flex items-center gap-3">
+                          <span className="font-semibold text-sm">
+                            ₹
+                            {(item.menuItem?.price || item.price) *
+                              item.quantity}
+                          </span>
 
-                      return (
-                        // ✅ THIS WAS MISSING
-                        <div
-                          key={menuItemData.id}
-                          className="flex items-center justify-between bg-card border rounded-xl p-4 hover:shadow-sm transition-shadow"
-                        >
-                          <div>
-                            <p className="font-medium text-sm">{itemName}</p>
-                            <p className="text-xs text-muted-foreground">
-                              ₹{itemPrice} × {item.quantity}
-                            </p>
-                          </div>
-
-                          <div className="flex items-center gap-3">
-                            <span className="font-semibold text-sm">
-                              ₹{itemPrice * item.quantity}
-                            </span>
-
-                            <div className="flex gap-1">
-                              <button
-                                onClick={() =>
-                                  onRemoveItem(order.id, menuItemData)
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => {
+                                if (item.menuItem?.id) {
+                                  onRemoveItem(order.id, item.menuItem.id);
                                 }
-                                className="p-1.5 text-destructive hover:bg-destructive/10 rounded-lg"
-                              >
-                                <Minus className="w-4 h-4" />
-                              </button>
+                              }}
+                              className="p-1.5 text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                            >
+                              <Minus className="w-4 h-4" />
+                            </button>
 
-                              <button
-                                onClick={() =>
-                                  onAddItem(order.id, menuItemData)
-                                }
-                                className="p-1.5 text-success hover:bg-success/10 rounded-lg"
-                              >
-                                <Plus className="w-4 h-4" />
-                              </button>
-                            </div>
+                            <button
+                              onClick={() => onAddItem(order.id, item.menuItem)}
+                              className="p-1.5 text-success hover:bg-success/10 rounded-lg transition-colors"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </button>
                           </div>
                         </div>
-                      );
-                    })}
+                      </div>
+                    ))}
                   </div>
 
                   <div className="flex justify-between items-center mt-6 pt-4 border-t-2 border-dashed">
@@ -288,44 +281,20 @@ export default function OrderPanel({
                   { method: "cash", label: "Cash", icon: Banknote },
                   { method: "card", label: "Card", icon: CreditCard },
                   { method: "upi", label: "UPI", icon: Smartphone },
-                ].map((p) => {
-                  const isSelected = selectedMethod === p.method;
-
-                  return (
-                    <button
-                      key={p.method}
-                      onClick={() =>
-                        setSelectedMethod(p.method as "cash" | "card" | "upi")
-                      }
-                      className={`flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all duration-200 group
-          
-          ${
-            isSelected
-              ? "border-success bg-success/10 shadow-md" // ✅ SELECTED STATE
-              : "border-gray-200 hover:border-success hover:bg-success/5"
-          }
-        `}
-                    >
-                      <div
-                        className={`p-3 rounded-xl transition-colors
-            ${
-              isSelected
-                ? "bg-success/20"
-                : "bg-muted group-hover:bg-success/15"
-            }
-          `}
-                      >
-                        <p.icon
-                          className={`w-6 h-6 transition-colors
-              ${isSelected ? "text-success" : "group-hover:text-success"}
-            `}
-                        />
-                      </div>
-
-                      <span className="text-sm font-semibold">{p.label}</span>
-                    </button>
-                  );
-                })}
+                ].map((p) => (
+                  <button
+                    key={p.method}
+                    onClick={() =>
+                      setSelectedMethod(p.method as "cash" | "card" | "upi")
+                    }
+                    className="flex flex-col items-center gap-3 p-5 rounded-2xl border-2 hover:border-success hover:bg-success/5 hover:shadow-md transition-all duration-200 group"
+                  >
+                    <div className="p-3 rounded-xl bg-muted group-hover:bg-success/15 transition-colors">
+                      <p.icon className="w-6 h-6 group-hover:text-success transition-colors" />
+                    </div>
+                    <span className="text-sm font-semibold">{p.label}</span>
+                  </button>
+                ))}
               </div>
               <Button
                 onClick={async () => {
