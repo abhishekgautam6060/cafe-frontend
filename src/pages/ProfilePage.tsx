@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { User, Mail, Phone, Save, LogOut } from "lucide-react";
+import API from "@/services/api";
 
 export default function ProfilePage() {
   const { profile } = useProfile();
@@ -14,12 +15,23 @@ export default function ProfilePage() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [saving, setSaving] = useState(false);
+  const [showStaffForm, setShowStaffForm] = useState(false);
+
+  const [staffForm, setStaffForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    role: "WAITER",
+  });
 
   const [form, setForm] = useState({
     name: "",
     email: "",
     phone: "",
   });
+
+  const role = localStorage.getItem("role");
 
   useEffect(() => {
     if (profile) {
@@ -47,6 +59,33 @@ export default function ProfilePage() {
   const handleSignOut = async () => {
     await signOut();
     toast.success("Signed out");
+  };
+
+  const handleCreateStaff = async () => {
+    try {
+      await API.post("/auth/create-staff", {
+        fullName: staffForm.name,
+        email: staffForm.email,
+        phone: staffForm.phone,
+        password: staffForm.password,
+        role: staffForm.role,
+      });
+
+      toast.success("Staff created ✅");
+
+      setShowStaffForm(false);
+
+      setStaffForm({
+        name: "",
+        email: "",
+        phone: "",
+        password: "",
+        role: "WAITER",
+      });
+    } catch (err) {
+      console.error(err);
+      toast.error("Error creating staff ❌");
+    }
   };
 
   return (
@@ -107,6 +146,80 @@ export default function ProfilePage() {
           {saving ? "Saving..." : "Save Changes"}
         </Button>
       </div>
+
+      {/* Create Staff's */}
+      {role === "ADMIN" && (
+        <Button
+          onClick={() => setShowStaffForm(true)}
+          className="w-full rounded-xl mt-4"
+        >
+          Create Staff
+        </Button>
+      )}
+
+      {showStaffForm && (
+        <div className="bg-card border rounded-2xl p-6 space-y-4 mt-6">
+          <h2 className="text-lg font-semibold">Create Staff</h2>
+
+          <Input
+            placeholder="Name"
+            value={staffForm.name}
+            onChange={(e) =>
+              setStaffForm({ ...staffForm, name: e.target.value })
+            }
+          />
+
+          <Input
+            placeholder="Email"
+            value={staffForm.email}
+            onChange={(e) =>
+              setStaffForm({ ...staffForm, email: e.target.value })
+            }
+          />
+
+          <Input
+            placeholder="Phone"
+            value={staffForm.phone}
+            onChange={(e) =>
+              setStaffForm({ ...staffForm, phone: e.target.value })
+            }
+          />
+
+          <Input
+            placeholder="Password"
+            type="password"
+            value={staffForm.password}
+            onChange={(e) =>
+              setStaffForm({ ...staffForm, password: e.target.value })
+            }
+          />
+
+          {/* Role Select */}
+          <select
+            className="w-full border rounded-xl p-2"
+            value={staffForm.role}
+            onChange={(e) =>
+              setStaffForm({ ...staffForm, role: e.target.value })
+            }
+          >
+            <option value="CASHIER">Cashier</option>
+            <option value="WAITER">Waiter</option>
+            <option value="KITCHEN">Kitchen</option>
+          </select>
+
+          <Button onClick={handleCreateStaff} className="w-full rounded-xl">
+            Create Staff
+          </Button>
+
+          <Button
+            variant="outline"
+            onClick={() => setShowStaffForm(false)}
+            className="w-full rounded-xl"
+          >
+            Cancel
+          </Button>
+        </div>
+      )}
 
       <Button
         variant="outline"

@@ -49,6 +49,7 @@ export default function OrderPanel({
   const filteredItems = MENU_ITEMS.filter((i) => i.category === activeCategory);
   const items = order?.items || [];
   const total = order ? getTotal(order.items) : 0;
+  console.log("ORDER STATUS:", order?.status);
 
   return (
     <div
@@ -232,7 +233,11 @@ export default function OrderPanel({
                   </div>
 
                   <Button
-                    onClick={() => onGenerateBill(order.id)}
+                    onClick={async () => {
+                      await onGenerateBill(order.id);
+                      // 🔥 FORCE RE-OPEN PANEL
+                      setForceUpdate((prev) => !prev);
+                    }}
                     className="w-full mt-4 h-12 bg-primary hover:bg-primary/90 gap-2 rounded-xl text-base font-semibold"
                   >
                     <Receipt className="w-5 h-5" /> Generate Bill
@@ -241,6 +246,7 @@ export default function OrderPanel({
               )}
             </>
           )}
+
           {/* 🔥 BILLED STATE (FIXED) */}
           {order && order.status === "BILLED" && (
             <div>

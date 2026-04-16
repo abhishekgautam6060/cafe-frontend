@@ -13,19 +13,27 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
 
     try {
       if (isLogin) {
+        if (!email || !password) {
+          toast.error("Email and Password are required ❌");
+          setLoading(false);
+          return;
+        }
         const res = await loginUser({
           email: email,
           password: password,
         });
         // ✅ Save JWT token
         localStorage.setItem("token", res.token);
+        localStorage.setItem("role", res.role);
         localStorage.setItem("name", JSON.stringify(res.name));
         localStorage.setItem("email", JSON.stringify(res.email));
 
@@ -52,7 +60,25 @@ export default function Auth() {
         setIsLogin(true);
       }
     } catch (err: any) {
-      toast.error(err?.response?.data || "Something went wrong ❌");
+      console.log("LOGIN ERROR:", err); // debug (important)
+
+      let message = "Something went wrong ❌";
+
+      if (err.response) {
+        // Backend responded with error
+        message =
+          err.response.data?.message || // { message: "Invalid credentials" }
+          err.response.data || // plain string
+          "Invalid email or password ❌";
+      } else if (err.request) {
+        // No response from server
+        message = "Server not responding 🚨";
+      } else {
+        // Other errors
+        message = err.message;
+      }
+
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -128,11 +154,11 @@ export default function Auth() {
             {!isLogin && (
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">
-                  Full Name
+                  Cafe Name
                 </label>
                 <Input
                   type="text"
-                  placeholder="Enter your name"
+                  placeholder="Enter your Wonder Cafe Name 😉"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   className="h-12 bg-card border-border/60 text-base"
@@ -154,6 +180,12 @@ export default function Auth() {
               </div>
             )}
             <div className="space-y-2">
+              {error && (
+                <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-lg animate-in fade-in">
+                  <span className="text-red-500 font-bold">👀 Oops</span>
+                  <span>{error}</span>
+                </div>
+              )}
               <label className="text-sm font-medium text-foreground">
                 Email
               </label>

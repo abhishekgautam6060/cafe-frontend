@@ -1,4 +1,4 @@
-import { Order, OrderItem, TABLE_COUNT } from "@/types/cafe";
+import { Order, OrderItem, MENU_ITEMS, TABLE_COUNT } from "@/types/cafe";
 import { Coffee, IndianRupee, ClipboardList, Users } from "lucide-react";
 
 interface DashboardProps {
@@ -22,13 +22,14 @@ export default function Dashboard({
   ).filter((t) => getActiveOrder(t));
   const totalOrders = todaysOrders.length;
   const paidOrders = todaysOrders.filter((o) => o.status === "PAID").length;
+  const menuCount = MENU_ITEMS.length;
 
   const stats = [
     {
-      key: "revenue",
-      label: "Monthly Revenue",
-      value: `₹${todaysRevenue.toLocaleString()}`,
-      icon: IndianRupee,
+      key: "menu",
+      label: "Menu's",
+      value: menuCount,
+      icon: Coffee,
       accent: "from-success/20 to-success/5 border-success/20",
       iconBg: "bg-success/15 text-success",
     },
@@ -63,7 +64,10 @@ export default function Dashboard({
       {stats.map((s) => (
         <button
           key={s.key}
-          onClick={() => onStatClick?.(s.key)}
+          onClick={() => {
+            console.log("Clicked:", s.key);
+            onStatClick?.(s.key);
+          }}
           className={`relative overflow-hidden rounded-2xl p-4 border bg-gradient-to-br ${s.accent} backdrop-blur-sm transition-all hover:scale-[1.02] active:scale-95 text-left`}
         >
           <div className="flex items-center gap-2 mb-2">

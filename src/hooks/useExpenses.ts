@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 import API from "@/services/api";
 
 export interface Expense {
-  id?: number;
-  title: string;
-  amount: number;
-  category: string;
-  expense_date: string;
+id?: number;
+title: string;
+amount: number;
+category: string;
+expense_date: string;
 }
 
 export function useExpenses() {
