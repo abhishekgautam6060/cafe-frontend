@@ -1,5 +1,5 @@
 import { Home, Receipt, PieChart, User } from "lucide-react";
-import { hasAccess } from "@/utils/Auth";
+import { hasAccess } from "@/utils/auth";
 
 export type TabKey = "home" | "orders" | "billing" | "profile" | "menu";
 
