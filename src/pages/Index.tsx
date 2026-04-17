@@ -7,10 +7,12 @@ import OrderPanel from "@/components/OrderPanel";
 import BottomNav, { TabKey } from "@/components/BottomNav";
 import ProfilePage from "@/pages/ProfilePage";
 import AllOrdersPage from "@/pages/AllOrdersPage";
+import MenuPage from "@/pages/MenuPage";
 import BillingPage from "@/pages/BillingPage";
 import { Coffee } from "lucide-react";
 import { useEffect } from "react";
 import { useProfile } from "@/hooks/useProfile";
+import { hasAccess } from "@/utils/Auth";
 
 const Index = () => {
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
@@ -28,19 +30,18 @@ const Index = () => {
     removeItem,
     generateBill,
     collectPayment,
+    addMoreItem,
     getTotal,
     fetchOrders,
   } = useOrders();
 
   useEffect(() => {
-    if (activeTab === "home") {
-      fetchOrders(); // 🔥 REFRESH DATA
-    }
-  }, [activeTab]);
+    fetchOrders();
+  }, []);
 
   const handleStatClick = (stat: string) => {
     if (stat === "orders" || stat === "paid") setActiveTab("orders");
-    if (stat === "revenue") setActiveTab("billing");
+    if (stat === "menu") setActiveTab("menu");
   };
 
   return (
@@ -83,8 +84,9 @@ const Index = () => {
       )}
 
       {activeTab === "orders" && <AllOrdersPage />}
-      {activeTab === "billing" && <BillingPage />}
+      {activeTab === "billing" && hasAccess(["ADMIN"]) && <BillingPage />}
       {activeTab === "profile" && <ProfilePage />}
+      {activeTab === "menu" && <MenuPage />}
 
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
 
@@ -98,6 +100,7 @@ const Index = () => {
           onAddItem={addItem}
           onRemoveItem={removeItem}
           onGenerateBill={generateBill}
+          onAddMoreItem={addMoreItem}
           onCollectPayment={collectPayment}
           getTotal={getTotal}
         />
