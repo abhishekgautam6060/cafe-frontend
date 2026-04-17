@@ -12,7 +12,7 @@ import BillingPage from "@/pages/BillingPage";
 import { Coffee } from "lucide-react";
 import { useEffect } from "react";
 import { useProfile } from "@/hooks/useProfile";
-import { hasAccess } from "@/utils/Auth";
+import { hasAccess } from "@/utils/auth";
 
 const Index = () => {
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
