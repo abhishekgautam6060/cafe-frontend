@@ -13,6 +13,7 @@ import { Coffee } from "lucide-react";
 import { useEffect } from "react";
 import { useProfile } from "@/hooks/useProfile";
 import { hasAccess } from "@/utils/auth";
+import KitchenOrdersPanel from "@/components/KitchenOrdersPanel";
 
 const Index = () => {
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
@@ -31,8 +32,10 @@ const Index = () => {
     generateBill,
     collectPayment,
     addMoreItem,
+    getBackToActive,
     getTotal,
     fetchOrders,
+    preparedAndServed,
   } = useOrders();
 
   useEffect(() => {
@@ -75,11 +78,22 @@ const Index = () => {
             getActiveOrder={getActiveOrder}
             onStatClick={handleStatClick}
           />
-          <TableGrid
+          <div className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-6">
+            {/* LEFT SIDE */}
+            <TableGrid
+              getActiveOrder={getActiveOrder}
+              getTotal={getTotal}
+              onSelectTable={setSelectedTable}
+            />
+
+            {/* RIGHT SIDE */}
+            <KitchenOrdersPanel todaysOrders={todaysOrders} />
+          </div>
+          {/* <TableGrid
             getActiveOrder={getActiveOrder}
             getTotal={getTotal}
             onSelectTable={setSelectedTable}
-          />
+          /> */}
         </main>
       )}
 
@@ -98,10 +112,12 @@ const Index = () => {
           onClose={() => setSelectedTable(null)}
           onCreateOrder={createOrder}
           onAddItem={addItem}
+          getBackToActive={getBackToActive}
           onRemoveItem={removeItem}
           onGenerateBill={generateBill}
           onAddMoreItem={addMoreItem}
           onCollectPayment={collectPayment}
+          onPreparedAndServed={preparedAndServed}
           getTotal={getTotal}
         />
       )}

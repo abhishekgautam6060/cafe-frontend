@@ -3,12 +3,14 @@ import { useOrders } from "@/hooks/useOrders";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Receipt, Search, Filter } from "lucide-react";
+import OrderDetailsPanel from "@/components/OrderDetailsPanel";
 
 export default function AllOrdersPage() {
   const { todaysOrders, getTotal } = useOrders();
   const orders = todaysOrders || [];
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
 
   const filtered = useMemo(() => {
     let list = [...orders].sort(
@@ -102,9 +104,10 @@ export default function AllOrdersPage() {
               {date}
             </h3>
             {dateOrders.map((order) => (
-              <div
+              <button
                 key={order.id}
-                className="bg-card border rounded-2xl p-4 flex items-center justify-between hover:shadow-md transition-shadow"
+                onClick={() => setSelectedOrder(order)}
+                className="w-full bg-card border rounded-2xl p-4 flex items-center justify-between hover:shadow-md hover:border-primary/30 transition-all text-left"
               >
                 <div>
                   <div className="flex items-center gap-2 mb-1">
@@ -149,8 +152,14 @@ export default function AllOrdersPage() {
                 <span className="font-display font-bold text-lg">
                   ₹{getTotal(order.items)}
                 </span>
-              </div>
+              </button>
             ))}
+            {selectedOrder && (
+              <OrderDetailsPanel
+                order={selectedOrder}
+                onClose={() => setSelectedOrder(null)}
+              />
+            )}
           </div>
         ))
       )}

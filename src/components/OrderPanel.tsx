@@ -19,6 +19,8 @@ interface OrderPanelProps {
   onClose: () => void;
   onAddMoreItem: (orderId: number) => void;
   onCreateOrder: (tableNo: number) => void;
+  onPreparedAndServed: (orderId: number) => void;
+  getBackToActive: (orderId: number) => void;
   onAddItem: (orderId: number, item: MenuItem) => void;
   onRemoveItem: (orderId: number, item: MenuItem) => void;
   onGenerateBill: (orderId: string) => void;
@@ -35,8 +37,10 @@ export default function OrderPanel({
   onAddMoreItem,
   onCreateOrder,
   onAddItem,
+  getBackToActive,
   onRemoveItem,
   onGenerateBill,
+  onPreparedAndServed,
   onCollectPayment,
   getTotal,
 }: OrderPanelProps) {
@@ -49,6 +53,9 @@ export default function OrderPanel({
   const filteredItems = MENU_ITEMS.filter((i) => i.category === activeCategory);
   const items = order?.items || [];
   const total = order ? getTotal(order.items) : 0;
+  const [viewMode, setViewMode] = useState<"ACTIVE" | "PREPARED" | "BILLED">(
+    "ACTIVE"
+  );
   console.log("ORDER STATUS:", order?.status);
 
   return (
@@ -181,7 +188,160 @@ export default function OrderPanel({
                       const itemPrice = item.menuItem?.price || item.price;
 
                       return (
-                        // ✅ THIS WAS MISSING
+                        <div
+                          key={menuItemData.id}
+                          className="flex items-center justify-between bg-card border rounded-xl p-4 hover:shadow-sm transition-shadow"
+                        >
+                          <div>
+                            <p className="font-medium text-sm">{itemName}</p>
+                            <p className="text-xs text-muted-foreground">
+                              ₹{itemPrice} × {item.quantity}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-3">
+                            <span className="font-semibold text-sm">
+                              ₹{itemPrice * item.quantity}
+                            </span>
+
+                            <div className="flex gap-1">
+                              <button
+                                onClick={() =>
+                                  onRemoveItem(order.id, menuItemData)
+                                }
+                                className="p-1.5 text-destructive hover:bg-destructive/10 rounded-lg"
+                              >
+                                <Minus className="w-4 h-4" />
+                              </button>
+
+                              <button
+                                onClick={() =>
+                                  onAddItem(order.id, menuItemData)
+                                }
+                                className="p-1.5 text-success hover:bg-success/10 rounded-lg"
+                              >
+                                <Plus className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex justify-between items-center mt-6 pt-4 border-t-2 border-dashed">
+                    <span className="font-display font-bold text-lg">
+                      Total
+                    </span>
+                    <span className="font-display font-bold text-2xl text-primary">
+                      ₹{total}
+                    </span>
+                  </div>
+
+                  <Button
+                    onClick={async () => {
+                      await onPreparedAndServed(order.id);
+                      // 🔥 FORCE RE-OPEN PANEL
+                      setForceUpdate((prev) => !prev);
+                    }}
+                    className="w-full mt-4 h-12 bg-primary hover:bg-primary/90 gap-2 rounded-xl text-base font-semibold"
+                  >
+                    <Receipt className="w-5 h-5" /> Preparied and served
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Active order */}
+          {order && order.status === "PREPARED" && (
+            <>
+              <Button
+                onClick={async () => {
+                  await getBackToActive(order.id);
+                }}
+              >
+                ← Back To menu
+              </Button>
+              {/* Menu categories */}
+              {/* <div>
+                <h3 className="font-semibold mb-3 text-sm uppercase tracking-wider text-muted-foreground">
+                  Menu
+                </h3>
+
+                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+                  {categories.map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => setActiveCategory(c)}
+                      className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200
+                ${
+                  c === activeCategory
+                    ? "bg-primary text-primary-foreground shadow-md"
+                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                }`}
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 mt-4">
+                  {filteredItems.map((item) => {
+                    const inOrder = items.find(
+                      (i) => i.menuItem?.id === item.id
+                    );
+
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => onAddItem(order.id, item)}
+                        className="bg-card border rounded-xl p-4 text-left hover:border-accent hover:shadow-md transition-all duration-200 relative group"
+                      >
+                        <p className="font-medium text-sm group-hover:text-accent transition-colors">
+                          {item.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          ₹{item.price}
+                        </p>
+
+                        {inOrder && (
+                          <span className="absolute -top-2 -right-2 bg-accent text-accent-foreground text-xs w-6 h-6 rounded-full flex items-center justify-center font-bold shadow-md">
+                            {inOrder.quantity}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div> */}
+
+              {/* 🔥 Show hint when no items */}
+              {items.length === 0 && (
+                <p className="text-center text-muted-foreground text-sm mt-4">
+                  Tap menu items to add
+                </p>
+              )}
+
+              {/* Current order items */}
+              {items.length > 0 && (
+                <div>
+                  <h3 className="font-semibold mb-3 text-sm uppercase tracking-wider text-muted-foreground">
+                    Current Order
+                  </h3>
+
+                  <div className="space-y-2">
+                    {items.map((item: any) => {
+                      const menuItemData = item.menuItem || {
+                        id: item.id,
+                        name: item.itemName,
+                        price: item.price,
+                      };
+
+                      const itemName = item.menuItem?.name || item.itemName;
+                      const itemPrice = item.menuItem?.price || item.price;
+
+                      return (
                         <div
                           key={menuItemData.id}
                           className="flex items-center justify-between bg-card border rounded-xl p-4 hover:shadow-sm transition-shadow"
@@ -270,7 +430,7 @@ export default function OrderPanel({
                 ))}
               </div>
               <Button
-                onClick={() => onAddMoreItem(order.id)}
+                onClick={() => setViewMode("ACTIVE")}
                 variant="outline"
                 className="w-full mb-4 rounded-xl"
               >

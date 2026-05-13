@@ -25,7 +25,9 @@ export function useOrders() {
     return todaysOrders.find(
       (o) =>
         o.tableNo === tableNo &&
-        (o.status === "ACTIVE" || o.status === "BILLED") // 🔥 FIX
+        (o.status === "ACTIVE" ||
+          o.status === "PREPARED" ||
+          o.status === "BILLED") // 🔥 FIX
     );
   };
 
@@ -83,6 +85,24 @@ export function useOrders() {
       const price = item.menuItem?.price || item.price || 0;
       return sum + price * item.quantity;
     }, 0);
+  };
+
+  const preparedAndServed = async (orderId: number) => {
+    try {
+      await API.put(`/orders/${orderId}/prepared`);
+      await fetchOrders();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const getBackToActive = async (orderId: number) => {
+    try {
+      await API.put(`/orders/${orderId}/active`);
+      await fetchOrders();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const generateBill = async (orderId: string) => {
@@ -160,12 +180,14 @@ export function useOrders() {
     todaysRevenue,
     getActiveOrder,
     createOrder,
-    removeItem, // ✅ add this
-    generateBill, // ✅ add this
+    removeItem,
+    generateBill,
+    getBackToActive,
     addMoreItem,
     collectPayment,
     addItem,
     getTotal,
+    preparedAndServed,
     fetchOrders,
   };
 }
