@@ -1,8 +1,10 @@
-import { Order, OrderItem, MENU_ITEMS, TABLE_COUNT } from "@/types/cafe";
+import { Order, OrderItem, MenuItem } from "@/types/cafe";
 import { Coffee, IndianRupee, ClipboardList, Users } from "lucide-react";
 
 interface DashboardProps {
+  tableCount: number;
   todaysOrders: Order[];
+  menuItems: MenuItem[];
   todaysRevenue: number;
   getTotal: (items: OrderItem[]) => number;
   getActiveOrder: (tableNo: number) => Order | undefined;
@@ -11,18 +13,20 @@ interface DashboardProps {
 
 export default function Dashboard({
   todaysOrders,
+  tableCount,
   todaysRevenue,
+  menuItems,
   getTotal,
   getActiveOrder,
   onStatClick,
 }: DashboardProps) {
   const activeTables = Array.from(
-    { length: TABLE_COUNT },
+    { length: tableCount },
     (_, i) => i + 1
   ).filter((t) => getActiveOrder(t));
   const totalOrders = todaysOrders.length;
   const paidOrders = todaysOrders.filter((o) => o.status === "PAID").length;
-  const menuCount = MENU_ITEMS.length;
+  const menuCount = menuItems.length;
 
   const stats = [
     {

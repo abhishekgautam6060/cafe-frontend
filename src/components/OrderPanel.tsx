@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Order, MenuItem, MENU_ITEMS, OrderItem } from "@/types/cafe";
+import { Order, MenuItem, OrderItem } from "@/types/cafe";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,10 +17,21 @@ interface OrderPanelProps {
   tableNo: number;
   order: any;
   onClose: () => void;
+  menuItems: MenuItem[];
   onAddMoreItem: (orderId: number) => void;
   onCreateOrder: (tableNo: number) => void;
   onPreparedAndServed: (orderId: number) => void;
   getBackToActive: (orderId: number) => void;
+  addNotification: (
+    title: string,
+    message: string,
+    type: "ORDER" | "BILL" | "MENU" | "CATEGORY",
+    extra?: {
+      tableNo?: number;
+      orderId?: string;
+      redirectTab?: string;
+    }
+  ) => void;
   onAddItem: (orderId: number, item: MenuItem) => void;
   onRemoveItem: (orderId: number, item: MenuItem) => void;
   onGenerateBill: (orderId: string) => void;
@@ -28,14 +39,14 @@ interface OrderPanelProps {
   getTotal: (items: OrderItem[]) => number;
 }
 
-const categories = [...new Set(MENU_ITEMS.map((i) => i.category))];
-
 export default function OrderPanel({
   tableNo,
   order,
   onClose,
   onAddMoreItem,
   onCreateOrder,
+  addNotification,
+  menuItems,
   onAddItem,
   getBackToActive,
   onRemoveItem,
@@ -44,13 +55,14 @@ export default function OrderPanel({
   onCollectPayment,
   getTotal,
 }: OrderPanelProps) {
+  const categories = [...new Set(menuItems.map((i) => i.category))];
   const [selectedMethod, setSelectedMethod] = useState<
     "cash" | "card" | "upi" | null
   >(null);
   const [forceUpdate, setForceUpdate] = useState(false);
   const [activeCategory, setActiveCategory] = useState(categories[0]);
 
-  const filteredItems = MENU_ITEMS.filter((i) => i.category === activeCategory);
+  const filteredItems = menuItems.filter((i) => i.category === activeCategory);
   const items = order?.items || [];
   const total = order ? getTotal(order.items) : 0;
   const [viewMode, setViewMode] = useState<"ACTIVE" | "PREPARED" | "BILLED">(
@@ -98,7 +110,18 @@ export default function OrderPanel({
                 No active order for this table
               </p>
               <Button
-                onClick={() => onCreateOrder(tableNo)}
+                onClick={() => {
+                  onCreateOrder(tableNo);
+                  addNotification(
+                    "New Order Created",
+                    `Table T${tableNo} created a new order`,
+                    "ORDER",
+                    {
+                      tableNo,
+                      redirectTab: "home",
+                    }
+                  );
+                }}
                 size="lg"
                 className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-xl px-8"
               >
@@ -264,57 +287,6 @@ export default function OrderPanel({
                 ← Back To menu
               </Button>
               {/* Menu categories */}
-              {/* <div>
-                <h3 className="font-semibold mb-3 text-sm uppercase tracking-wider text-muted-foreground">
-                  Menu
-                </h3>
-
-                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-                  {categories.map((c) => (
-                    <button
-                      key={c}
-                      onClick={() => setActiveCategory(c)}
-                      className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200
-                ${
-                  c === activeCategory
-                    ? "bg-primary text-primary-foreground shadow-md"
-                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                }`}
-                    >
-                      {c}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 mt-4">
-                  {filteredItems.map((item) => {
-                    const inOrder = items.find(
-                      (i) => i.menuItem?.id === item.id
-                    );
-
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => onAddItem(order.id, item)}
-                        className="bg-card border rounded-xl p-4 text-left hover:border-accent hover:shadow-md transition-all duration-200 relative group"
-                      >
-                        <p className="font-medium text-sm group-hover:text-accent transition-colors">
-                          {item.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          ₹{item.price}
-                        </p>
-
-                        {inOrder && (
-                          <span className="absolute -top-2 -right-2 bg-accent text-accent-foreground text-xs w-6 h-6 rounded-full flex items-center justify-center font-bold shadow-md">
-                            {inOrder.quantity}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div> */}
 
               {/* 🔥 Show hint when no items */}
               {items.length === 0 && (
@@ -395,7 +367,18 @@ export default function OrderPanel({
                   <Button
                     onClick={async () => {
                       await onGenerateBill(order.id);
-                      // 🔥 FORCE RE-OPEN PANEL
+
+                      addNotification(
+                        "Order Billed",
+                        `Table T${tableNo} bill generated`,
+                        "BILL",
+                        {
+                          tableNo,
+                          orderId: order.id,
+                          redirectTab: "orders",
+                        }
+                      );
+
                       setForceUpdate((prev) => !prev);
                     }}
                     className="w-full mt-4 h-12 bg-primary hover:bg-primary/90 gap-2 rounded-xl text-base font-semibold"
@@ -495,7 +478,17 @@ export default function OrderPanel({
               <Button
                 onClick={async () => {
                   await onCollectPayment(order.id, selectedMethod);
-                  onCollectPayment; // 👈 use selected method
+                  onCollectPayment;
+                  addNotification(
+                    "Payment Received",
+                    `Table T${tableNo} paid via ${selectedMethod}`,
+                    "BILL",
+                    {
+                      tableNo,
+                      orderId: order.id,
+                      redirectTab: "orders",
+                    }
+                  );
                   onClose(); // close panel
                 }}
                 className="w-full mt-6 h-12 bg-success text-white rounded-xl"

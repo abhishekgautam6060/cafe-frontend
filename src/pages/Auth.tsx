@@ -9,6 +9,7 @@ export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [tableCount, settableCount] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -43,7 +44,7 @@ export default function Auth() {
         window.location.href = "/";
       } else {
         // ✅ VALIDATION
-        if (!fullName || !email || !phone || !password) {
+        if (!fullName || !email || !phone || !password || !tableCount) {
           toast.error("All fields are required ❌");
           setLoading(false);
           return;
@@ -53,6 +54,7 @@ export default function Auth() {
           fullName: fullName,
           email: email,
           phone: phone,
+          tableCount: tableCount,
           password: password,
         });
 
@@ -175,6 +177,20 @@ export default function Auth() {
                   placeholder="Enter you number"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
+                  className="h-12 bg-card border-border/60 text-base"
+                />
+              </div>
+            )}
+            {!isLogin && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">
+                  No Of Tables
+                </label>
+                <Input
+                  type="text"
+                  placeholder="Total No Of Tables"
+                  value={tableCount}
+                  onChange={(e) => settableCount(e.target.value)}
                   className="h-12 bg-card border-border/60 text-base"
                 />
               </div>

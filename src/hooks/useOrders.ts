@@ -1,6 +1,6 @@
 import { useState } from "react";
 import API from "@/services/api";
-import { MENU_ITEMS } from "@/types/cafe";
+import { MenuItem } from "@/types/cafe";
 import { useEffect } from "react";
 
 export function useOrders() {

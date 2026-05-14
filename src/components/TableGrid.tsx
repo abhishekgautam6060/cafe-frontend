@@ -1,18 +1,22 @@
-import { TABLE_COUNT, Order, OrderItem } from "@/types/cafe";
+import { Order, OrderItem } from "@/types/cafe";
 import { UtensilsCrossed, Sparkles, ShoppingBag } from "lucide-react";
+import API from "@/services/api";
+import { useEffect, useState } from "react";
 
 interface TableGridProps {
+  tableCount: number;
   getActiveOrder: (tableNo: number) => Order | undefined;
   getTotal: (items: OrderItem[]) => number;
   onSelectTable: (tableNo: number) => void;
 }
 
 export default function TableGrid({
+  tableCount,
   getActiveOrder,
   getTotal,
   onSelectTable,
 }: TableGridProps) {
-  const tables = Array.from({ length: TABLE_COUNT }, (_, i) => i + 1);
+  const tables = Array.from({ length: tableCount }, (_, i) => i + 1);
   const takeawayOrder = getActiveOrder(0);
 
   return (
@@ -24,7 +28,7 @@ export default function TableGrid({
           className={`w-full group relative rounded-2xl p-5 border-2 transition-all duration-200 hover:shadow-lg flex items-center gap-4
             ${
               takeawayOrder
-                ? takeawayOrder.status === "billed"
+                ? takeawayOrder.status === "BILLED"
                   ? "border-warning bg-gradient-to-r from-warning/10 to-warning/5 shadow-warning/10 shadow-md"
                   : "border-accent bg-gradient-to-r from-accent/10 to-accent/5 shadow-accent/10 shadow-md"
                 : "border-border bg-card hover:border-primary/40 hover:shadow-md"
@@ -56,7 +60,7 @@ export default function TableGrid({
               ₹{getTotal(takeawayOrder.items)}
             </span>
           )}
-          {takeawayOrder?.status === "billed" && (
+          {takeawayOrder?.status === "BILLED" && (
             <span className="absolute -top-1.5 -right-1.5 bg-warning text-warning-foreground text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm animate-pulse">
               BILL
             </span>
@@ -72,7 +76,9 @@ export default function TableGrid({
         {tables.map((t) => {
           const order = getActiveOrder(t);
           const hasOrder = !!order;
-          const isBilled = order?.status === "billed";
+          const isActive = order?.status === "ACTIVE";
+          const isPrepared = order?.status === "PREPARED";
+          const isBilled = order?.status === "BILLED";
 
           return (
             <button
@@ -80,24 +86,45 @@ export default function TableGrid({
               onClick={() => onSelectTable(t)}
               className={`group relative rounded-2xl p-5 border-2 transition-all duration-200 hover:scale-105 hover:shadow-lg active:scale-95 flex flex-col items-center gap-2
                 ${
-                  isBilled
-                    ? "border-warning bg-gradient-to-b from-warning/10 to-warning/5 shadow-warning/10 shadow-md"
-                    : hasOrder
+                  // isBilled
+                  //   ? "border-warning bg-gradient-to-b from-warning/10 to-warning/5 shadow-warning/10 shadow-md"
+                  //   : hasOrder
+                  //   ? "border-accent bg-gradient-to-b from-accent/10 to-accent/5 shadow-accent/10 shadow-md"
+                  //   : "border-border bg-card hover:border-primary/40 hover:shadow-md"
+                  isActive
                     ? "border-accent bg-gradient-to-b from-accent/10 to-accent/5 shadow-accent/10 shadow-md"
+                    : isPrepared
+                    ? "border-warning bg-gradient-to-b from-warning/10 to-warning/5 shadow-warning/10 shadow-md"
+                    : isBilled
+                    ? "border-green-500 bg-gradient-to-b from-green-500/10 to-green-500/5 shadow-green-500/10 shadow-md"
                     : "border-border bg-card hover:border-primary/40 hover:shadow-md"
                 }`}
             >
               <div
                 className={`p-2 rounded-xl transition-colors ${
-                  hasOrder
+                  // hasOrder
+                  //   ? "bg-accent/15"
+                  //   : "bg-muted group-hover:bg-primary/10"
+                  isActive
                     ? "bg-accent/15"
+                    : isPrepared
+                    ? "bg-warning/15"
+                    : isBilled
+                    ? "bg-green-500/15"
                     : "bg-muted group-hover:bg-primary/10"
                 }`}
               >
                 <UtensilsCrossed
                   className={`w-6 h-6 ${
-                    hasOrder
+                    // hasOrder
+                    //   ? "text-accent"
+                    //   : "text-muted-foreground group-hover:text-primary"
+                    isActive
                       ? "text-accent"
+                      : isPrepared
+                      ? "text-warning"
+                      : isBilled
+                      ? "text-green-600"
                       : "text-muted-foreground group-hover:text-primary"
                   }`}
                 />
@@ -109,7 +136,7 @@ export default function TableGrid({
                 </span>
               )}
               {isBilled && (
-                <span className="absolute -top-1.5 -right-1.5 bg-warning text-warning-foreground text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm animate-pulse">
+                <span className="absolute -top-1.5 -right-1.5 bg-green-500 text-warning-foreground text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm animate-pulse">
                   BILL
                 </span>
               )}

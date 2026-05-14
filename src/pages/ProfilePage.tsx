@@ -202,6 +202,7 @@ export default function ProfilePage() {
               setStaffForm({ ...staffForm, role: e.target.value })
             }
           >
+            <option value="MANAGER">Manager</option>
             <option value="CASHIER">Cashier</option>
             <option value="WAITER">Waiter</option>
             <option value="KITCHEN">Kitchen</option>
