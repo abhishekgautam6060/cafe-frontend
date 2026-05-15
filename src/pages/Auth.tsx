@@ -264,12 +264,13 @@ export default function Auth() {
               onClick={() => setIsLogin(!isLogin)}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              {isLogin
+              {/* hiding the signup section */}
+              {/* {isLogin
                 ? "Don't have an account? "
                 : "Already have an account? "}
               <span className="text-primary font-semibold">
-                {isLogin ? "Sign Up" : "Sign In"}
-              </span>
+                {isLogin ? "Sign Up" : "Sign In"} */}
+              {/* </span> */}
             </button>
           </div>
         </div>
