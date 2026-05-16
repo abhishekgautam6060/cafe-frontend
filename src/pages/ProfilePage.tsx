@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { User, Mail, Phone, Save, LogOut } from "lucide-react";
+import { User, Mail, Phone, Save, LogOut, UtensilsCrossed } from "lucide-react";
 import API from "@/services/api";
 
 export default function ProfilePage() {
@@ -29,6 +29,7 @@ export default function ProfilePage() {
     name: "",
     email: "",
     phone: "",
+    tableCount: 0,
   });
 
   const role = localStorage.getItem("role");
@@ -39,6 +40,7 @@ export default function ProfilePage() {
         name: profile.name || "",
         email: profile.email || "",
         phone: profile.phone || "",
+        tableCount: profile.tableCount || 0,
       });
     }
   }, [profile]);
@@ -103,11 +105,16 @@ export default function ProfilePage() {
       <div className="bg-card border rounded-2xl p-6 space-y-5">
         <div className="space-y-2">
           <label className="text-sm font-medium flex items-center gap-2">
-            <User className="w-4 h-4 text-muted-foreground" /> Full Name
+            <User className="w-4 h-4 text-muted-foreground" /> Your's Cafe Name
           </label>
           <Input
             value={form.name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                name: e.target.value,
+              })
+            }
             placeholder="Enter your name"
             className="rounded-xl"
           />
@@ -119,7 +126,12 @@ export default function ProfilePage() {
           </label>
           <Input
             value={form.email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                email: e.target.value,
+              })
+            }
             placeholder="your@email.com"
             className="rounded-xl"
           />
@@ -131,8 +143,32 @@ export default function ProfilePage() {
           </label>
           <Input
             value={form.phone}
-            onChange={(e) => setPhone(e.target.value)}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                phone: e.target.value,
+              })
+            }
             placeholder="+91 XXXXX XXXXX"
+            className="rounded-xl"
+          />
+        </div>
+        <div className="space-y-2">
+          <label className="text-sm font-medium flex items-center gap-2">
+            <UtensilsCrossed className="w-4 h-4 text-muted-foreground" />
+            Table No's
+          </label>
+
+          <Input
+            type="number"
+            value={form.tableCount}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                tableCount: Number(e.target.value),
+              })
+            }
+            placeholder="Total tables"
             className="rounded-xl"
           />
         </div>

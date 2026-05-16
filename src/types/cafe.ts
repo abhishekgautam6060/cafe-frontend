@@ -1,10 +1,14 @@
 export interface MenuItem {
-  id: string;
+  id: number;
   name: string;
   price: number;
-  category: string;
+  category: MenuCategory;
 }
 
+export interface MenuCategory {
+  id: number;
+  name: string;
+}
 export interface OrderItem {
   menuItem: MenuItem;
   quantity: number;
@@ -14,7 +18,7 @@ export interface Expense {
   id?: number;
   title: string;
   amount: number;
-  category: string;
+  category: String;
   expense_date: string;
 }
 

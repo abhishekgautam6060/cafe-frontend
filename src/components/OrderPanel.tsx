@@ -55,14 +55,25 @@ export default function OrderPanel({
   onCollectPayment,
   getTotal,
 }: OrderPanelProps) {
-  const categories = [...new Set(menuItems.map((i) => i.category))];
+  const categories = [
+    ...new Map(
+      menuItems
+        .filter((item) => item.category)
+        .map((item) => [item.category.id, item.category])
+    ).values(),
+  ];
   const [selectedMethod, setSelectedMethod] = useState<
     "cash" | "card" | "upi" | null
   >(null);
   const [forceUpdate, setForceUpdate] = useState(false);
-  const [activeCategory, setActiveCategory] = useState(categories[0]);
+  const [activeCategory, setActiveCategory] = useState<any>("ALL");
 
-  const filteredItems = menuItems.filter((i) => i.category === activeCategory);
+  const filteredItems =
+    activeCategory === "ALL"
+      ? menuItems
+      : menuItems.filter(
+          (i) => i.category && i.category.id === activeCategory?.id
+        );
   const items = order?.items || [];
   const total = order ? getTotal(order.items) : 0;
   const [viewMode, setViewMode] = useState<"ACTIVE" | "PREPARED" | "BILLED">(
@@ -139,18 +150,32 @@ export default function OrderPanel({
                 </h3>
 
                 <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+                  {/* ALL CATEGORY */}
+                  <button
+                    onClick={() => setActiveCategory("ALL")}
+                    className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200
+      ${
+        activeCategory === "ALL"
+          ? "bg-primary text-primary-foreground shadow-md"
+          : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+      }`}
+                  >
+                    ALL
+                  </button>
+
+                  {/* OTHER CATEGORIES */}
                   {categories.map((c) => (
                     <button
-                      key={c}
+                      key={c.id}
                       onClick={() => setActiveCategory(c)}
                       className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200
-                ${
-                  c === activeCategory
-                    ? "bg-primary text-primary-foreground shadow-md"
-                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                }`}
+        ${
+          c.id === activeCategory?.id
+            ? "bg-primary text-primary-foreground shadow-md"
+            : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+        }`}
                     >
-                      {c}
+                      {c.name}
                     </button>
                   ))}
                 </div>
